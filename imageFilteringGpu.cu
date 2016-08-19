@@ -15,11 +15,11 @@ __global__ void imageFilteringGpu
     int y = blockDim.y * blockIdx.y + threadIdx.y;
     int border_size = (kernel.rows-1)/2;
 
-    if(y >= border_size && y < (dst.rows-border_size)){
-        if(x >= border_size && x < (dst.cols-border_size)){
+    if((y >= border_size) && y < (dst.rows-border_size)){
+        if((x >= border_size) && (x < (dst.cols-border_size))){
             double sum = 0.0;
-            for (int yy = 0; yy < kernel.rows; yy++){
-                for (int xx = 0; xx < kernel.cols; xx++){
+            for(int yy = 0; yy < kernel.rows; yy++){
+                for(int xx = 0; xx < kernel.cols; xx++){
                     sum += (kernel.ptr(yy)[xx] * src.ptr(y+yy-border_size)[x+xx-border_size]);
                 }
             }
