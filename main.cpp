@@ -28,7 +28,7 @@ int main(int argc, char *argv[])
     std::cout << "Naive: " << ((end - start) * f) << " ms." << std::endl;
 
     cv::cuda::GpuMat d_src(src);
-    cv::cuda::GpuMat d_dst(dst);
+    cv::cuda::GpuMat d_dst(dst.size(), dst.type(), cv::Scalar(0));
     cv::cuda::GpuMat d_kernel(kernel);
 
     // CUDA Implementation
