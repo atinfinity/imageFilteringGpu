@@ -30,6 +30,8 @@ int main(int argc, char *argv[])
 
     cv::cuda::GpuMat d_src(src);
     cv::cuda::GpuMat d_dst(dst.size(), dst.type(), cv::Scalar(0));
+    cv::cuda::GpuMat d_dst_ldg(dst.size(), dst.type(), cv::Scalar(0));
+    cv::cuda::GpuMat d_dst_tex(dst.size(), dst.type(), cv::Scalar(0));
     cv::cuda::GpuMat d_kernel(kernel);
 
     // CUDA Implementation
@@ -37,10 +39,24 @@ int main(int argc, char *argv[])
     launchImageFilteringGpu(d_src, d_dst, d_kernel, border_size);
     end = cv::getTickCount();
     std::cout << "CUDA: " << ((end - start) * f) << " ms." << std::endl;
+
+    // CUDA Implementation(use __ldg)
+    start = cv::getTickCount();
+    launchImageFilteringGpu_ldg(d_src, d_dst_ldg, d_kernel, border_size);
+    end = cv::getTickCount();
+    std::cout << "CUDA(ldg): " << ((end - start) * f) << " ms." << std::endl;
+
+    // CUDA Implementation(use texture)
+    start = cv::getTickCount();
+    launchImageFilteringGpu_tex(d_src, d_dst_tex, d_kernel, border_size);
+    end = cv::getTickCount();
+    std::cout << "CUDA(texture): " << ((end - start) * f) << " ms." << std::endl;
     std::cout << std::endl;
 
     // Verification
     verify(dst, d_dst);
+    verify(dst, d_dst_ldg);
+    verify(dst, d_dst_tex);
 
     return 0;
 }
