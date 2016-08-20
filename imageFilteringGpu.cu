@@ -8,12 +8,12 @@ __global__ void imageFilteringGpu
 (
     const cv::cudev::PtrStepSz<uchar> src,
     cv::cudev::PtrStepSz<uchar> dst,
-    const cv::cudev::PtrStepSz<float> kernel
+    const cv::cudev::PtrStepSz<float> kernel, 
+    const int border_size
 )
 {
     int x = blockDim.x * blockIdx.x + threadIdx.x;
     int y = blockDim.y * blockIdx.y + threadIdx.y;
-    int border_size = (kernel.rows-1)/2;
 
     if((y >= border_size) && y < (dst.rows-border_size)){
         if((x >= border_size) && (x < (dst.cols-border_size))){
@@ -32,7 +32,8 @@ void launchImageFilteringGpu
 (
     cv::cuda::GpuMat& src,
     cv::cuda::GpuMat& dst,
-    cv::cuda::GpuMat& kernel
+    cv::cuda::GpuMat& kernel, 
+    const int border_size
 )
 {
     cv::cudev::PtrStepSz<uchar> pSrc =
@@ -47,7 +48,7 @@ void launchImageFilteringGpu
     const dim3 block(64, 2);
     const dim3 grid(cv::cudev::divUp(dst.cols, block.x), cv::cudev::divUp(dst.rows, block.y));
 
-    imageFilteringGpu<<<grid, block>>>(pSrc, pDst, pKernel);
+    imageFilteringGpu<<<grid, block>>>(pSrc, pDst, pKernel, border_size);
 
     CV_CUDEV_SAFE_CALL(cudaGetLastError());
     CV_CUDEV_SAFE_CALL(cudaDeviceSynchronize());

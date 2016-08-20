@@ -4,10 +4,10 @@ void imageFilteringCpu
 (
     const cv::Mat& src, 
     cv::Mat& dst, 
-    const cv::Mat& kernel
+    const cv::Mat& kernel, 
+    const int border_size
 )
 {
-    int border_size = (kernel.rows-1)/2;
     for(int y = border_size; y < (dst.rows - border_size); y++){
         uchar* pdst = dst.ptr<uchar>(y);
         for(int x = border_size; x < (dst.cols - border_size); x++){
