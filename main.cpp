@@ -17,6 +17,7 @@ int main(int argc, char *argv[])
     }
 
     cv::Mat dst(src.size(), src.type(), cv::Scalar(0));
+    cv::Mat dst_cv(src.size(), src.type(), cv::Scalar(0));
     const int kernel_size = 7;
     cv::Mat kernel = cv::Mat::ones(kernel_size, kernel_size, CV_32F) / (float)(kernel_size*kernel_size);
     const int border_size = (kernel_size-1)/2;
@@ -24,6 +25,10 @@ int main(int argc, char *argv[])
     // Naive Implementation
     double time = launchImageFilteringCpu(src, dst, kernel, border_size, loop_num);
     std::cout << "Naive: " << time << " ms." << std::endl;
+
+    // OpenCV
+    time = launchImageFilteringCV(src, dst_cv, kernel, border_size, loop_num);
+    std::cout << "OpenCV: " << time << " ms." << std::endl;
 
     cv::cuda::GpuMat d_src(src);
     cv::cuda::GpuMat d_dst(dst.size(), dst.type(), cv::Scalar(0));
