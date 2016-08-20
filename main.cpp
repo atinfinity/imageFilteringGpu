@@ -8,6 +8,8 @@
 
 int main(int argc, char *argv[])
 {
+    const int loop_num = 5;
+
     cv::Mat src = cv::imread("graf1.png", cv::IMREAD_GRAYSCALE);
     if(src.empty()){
         std::cerr << "Failed to open image file." << std::endl;
@@ -19,14 +21,9 @@ int main(int argc, char *argv[])
     cv::Mat kernel = cv::Mat::ones(kernel_size, kernel_size, CV_32F) / (float)(kernel_size*kernel_size);
     const int border_size = (kernel_size-1)/2;
 
-    double f = 1000.0f / cv::getTickFrequency();
-    int64 start = 0, end = 0;
-
     // Naive Implementation
-    start = cv::getTickCount();
-    imageFilteringCpu(src, dst, kernel, border_size);
-    end = cv::getTickCount();
-    std::cout << "Naive: " << ((end - start) * f) << " ms." << std::endl;
+    double time = launchImageFilteringCpu(src, dst, kernel, border_size, loop_num);
+    std::cout << "Naive: " << time << " ms." << std::endl;
 
     cv::cuda::GpuMat d_src(src);
     cv::cuda::GpuMat d_dst(dst.size(), dst.type(), cv::Scalar(0));
@@ -35,22 +32,17 @@ int main(int argc, char *argv[])
     cv::cuda::GpuMat d_kernel(kernel);
 
     // CUDA Implementation
-    start = cv::getTickCount();
-    launchImageFilteringGpu(d_src, d_dst, d_kernel, border_size);
-    end = cv::getTickCount();
-    std::cout << "CUDA: " << ((end - start) * f) << " ms." << std::endl;
+    time = launchImageFilteringGpu(d_src, d_dst, d_kernel, border_size, loop_num);
+    std::cout << "CUDA: " << time << " ms." << std::endl;
 
     // CUDA Implementation(use __ldg)
-    start = cv::getTickCount();
-    launchImageFilteringGpu_ldg(d_src, d_dst_ldg, d_kernel, border_size);
-    end = cv::getTickCount();
-    std::cout << "CUDA(ldg): " << ((end - start) * f) << " ms." << std::endl;
+    time = launchImageFilteringGpu_ldg(d_src, d_dst_ldg, d_kernel, border_size, loop_num);
+    std::cout << "CUDA(ldg): " << time << " ms." << std::endl;
 
     // CUDA Implementation(use texture)
-    start = cv::getTickCount();
-    launchImageFilteringGpu_tex(d_src, d_dst_tex, d_kernel, border_size);
-    end = cv::getTickCount();
-    std::cout << "CUDA(texture): " << ((end - start) * f) << " ms." << std::endl;
+    time = launchImageFilteringGpu_tex(d_src, d_dst_tex, d_kernel, border_size, loop_num);
+    std::cout << "CUDA(texture): " << time << " ms." << std::endl;
+
     std::cout << std::endl;
 
     // Verification

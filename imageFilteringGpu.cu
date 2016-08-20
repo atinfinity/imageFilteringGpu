@@ -15,8 +15,8 @@ __global__ void imageFilteringGpu
     const int border_size
 )
 {
-    int x = blockDim.x * blockIdx.x + threadIdx.x;
-    int y = blockDim.y * blockIdx.y + threadIdx.y;
+    const int x = blockDim.x * blockIdx.x + threadIdx.x;
+    const int y = blockDim.y * blockIdx.y + threadIdx.y;
 
     if((y >= border_size) && y < (dst.rows-border_size)){
         if((x >= border_size) && (x < (dst.cols-border_size))){
@@ -40,8 +40,8 @@ __global__ void imageFilteringGpu_ldg
     const int border_size
 )
 {
-    int x = blockDim.x * blockIdx.x + threadIdx.x;
-    int y = blockDim.y * blockIdx.y + threadIdx.y;
+    const int x = blockDim.x * blockIdx.x + threadIdx.x;
+    const int y = blockDim.y * blockIdx.y + threadIdx.y;
 
     if((y >= border_size) && y < (dst.rows-border_size)){
         if((x >= border_size) && (x < (dst.cols-border_size))){
@@ -67,8 +67,8 @@ __global__ void imageFilteringGpu_tex
     const int border_size
 )
 {
-    int x = blockDim.x * blockIdx.x + threadIdx.x;
-    int y = blockDim.y * blockIdx.y + threadIdx.y;
+    const int x = blockDim.x * blockIdx.x + threadIdx.x;
+    const int y = blockDim.y * blockIdx.y + threadIdx.y;
 
     if((y >= border_size) && (y < (dst.rows-border_size))){
         if((x >= border_size) && (x < (dst.cols-border_size))){
@@ -167,4 +167,73 @@ void launchImageFilteringGpu_tex
 
     // unbind texture
     CV_CUDEV_SAFE_CALL(cudaUnbindTexture(srcTex));
+}
+
+double launchImageFilteringGpu
+(
+    cv::cuda::GpuMat& src,
+    cv::cuda::GpuMat& dst,
+    cv::cuda::GpuMat& kernel, 
+    const int border_size, 
+    const int loop_num
+)
+{
+    double f = 1000.0f / cv::getTickFrequency();
+    int64 start = 0, end = 0;
+    double time = 0.0;
+    for (int i = 0; i <= loop_num; i++){
+        start = cv::getTickCount();
+        launchImageFilteringGpu(src, dst, kernel, border_size);
+        end = cv::getTickCount();
+        time += (i > 0) ? ((end - start) * f) : 0;
+    }
+    time /= loop_num;
+
+    return time;
+}
+
+double launchImageFilteringGpu_ldg
+(
+    cv::cuda::GpuMat& src,
+    cv::cuda::GpuMat& dst,
+    cv::cuda::GpuMat& kernel, 
+    const int border_size, 
+    const int loop_num
+)
+{
+    double f = 1000.0f / cv::getTickFrequency();
+    int64 start = 0, end = 0;
+    double time = 0.0;
+    for (int i = 0; i <= loop_num; i++){
+        start = cv::getTickCount();
+        launchImageFilteringGpu_ldg(src, dst, kernel, border_size);
+        end = cv::getTickCount();
+        time += (i > 0) ? ((end - start) * f) : 0;
+    }
+    time /= loop_num;
+
+    return time;
+}
+
+double launchImageFilteringGpu_tex
+(
+    cv::cuda::GpuMat& src,
+    cv::cuda::GpuMat& dst,
+    cv::cuda::GpuMat& kernel, 
+    const int border_size, 
+    const int loop_num
+)
+{
+    double f = 1000.0f / cv::getTickFrequency();
+    int64 start = 0, end = 0;
+    double time = 0.0;
+    for (int i = 0; i <= loop_num; i++){
+        start = cv::getTickCount();
+        launchImageFilteringGpu_tex(src, dst, kernel, border_size);
+        end = cv::getTickCount();
+        time += (i > 0) ? ((end - start) * f) : 0;
+    }
+    time /= loop_num;
+
+    return time;
 }
