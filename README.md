@@ -1,7 +1,8 @@
-﻿# imageFilteringGpu
+imageFilteringGpu
+-----
 フィルタ処理のCUDA実装
 
-## 確認環境
+# 確認環境
 筆者は以下の環境にて動作確認を行いました。
 
 * Ubuntu 16.04.1 LTS
@@ -11,11 +12,11 @@
 * OpenCV 3.1(<code>WITH_CUDA</code>=ON)
 * GeForce GTX 1080
 
-## 備考
-### OpenCV関係
+# 備考
+## OpenCV関係
 CMake実行時、<code>OpenCV_DIR</code>にOpenCVのインストールパスを設定する必要があります。
 
-### CUDA関係
+## CUDA関係
 同梱のCMakeLists.txtではコード生成を以下のように設定しています。
 
 ```
