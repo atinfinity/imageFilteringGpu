@@ -20,10 +20,10 @@ __global__ void imageFilteringGpu
 
     if((y >= border_size) && y < (dst.rows-border_size)){
         if((x >= border_size) && (x < (dst.cols-border_size))){
-            double sum = 0.0;
+            float sum = 0.0f;
             for(int yy = 0; yy < kernel.rows; yy++){
                 for(int xx = 0; xx < kernel.cols; xx++){
-                    sum += (kernel.ptr(yy)[xx] * src.ptr(y+yy-border_size)[x+xx-border_size]);
+                    sum += __fmul_rn(kernel.ptr(yy)[xx], src.ptr(y+yy-border_size)[x+xx-border_size]);
                 }
             }
             dst.ptr(y)[x] = sum;
@@ -45,12 +45,12 @@ __global__ void imageFilteringGpu_ldg
 
     if((y >= border_size) && y < (dst.rows-border_size)){
         if((x >= border_size) && (x < (dst.cols-border_size))){
-            double sum = 0.0;
+            float sum = 0.0f;
             for(int yy = 0; yy < kernel.rows; yy++){
                 const uchar* psrc = src.ptr(y+yy-border_size) + (x-border_size);
                 const float* pkernel = kernel.ptr(yy);
                 for(int xx = 0; xx < kernel.cols; xx++){
-                    sum += (__ldg(&pkernel[xx]) * __ldg(&psrc[xx]));
+                    sum += __fmul_rn(__ldg(&pkernel[xx]), __ldg(&psrc[xx]));
                 }
             }
             dst.ptr(y)[x] = sum;
@@ -72,10 +72,10 @@ __global__ void imageFilteringGpu_tex
 
     if((y >= border_size) && (y < (dst.rows-border_size))){
         if((x >= border_size) && (x < (dst.cols-border_size))){
-            double sum = 0.0;
+            float sum = 0.0f;
             for(int yy = 0; yy < kernel.rows; yy++){
                 for(int xx = 0; xx < kernel.cols; xx++){
-                    sum += (kernel.ptr(yy)[xx] * tex2D(srcTex, x + xx - border_size, y + yy - border_size));
+                    sum += __fmul_rn(kernel.ptr(yy)[xx], tex2D(srcTex, x + xx - border_size, y + yy - border_size));
                 }
             }
             dst.ptr(y)[x] = sum;
