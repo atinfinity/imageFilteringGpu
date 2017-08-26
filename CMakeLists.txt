@@ -5,9 +5,13 @@ find_package(CUDA REQUIRED)
 
 file(GLOB SOURCES "*.cu" "*.cpp" "*.c" "cuh" "*.h" "*.hpp")
 
+if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANGCXX)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -march=native")
+endif()
+
 if(CUDA_FOUND)
-  set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS};-std c++11")
-  set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS};-gencode arch=compute_61,code=sm_61")
+  set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS};-Xcompiler -std=c++11")
+  set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS};-gencode arch=compute_62,code=sm_62")
 
   if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS};-G;-g;-lineinfo;--ptxas-options=-v")
@@ -17,8 +21,10 @@ if(CUDA_FOUND)
 
   if(OpenCV_FOUND)
     CUDA_INCLUDE_DIRECTORIES(${OpenCV_INCLUDE_DIRS})
-    CUDA_ADD_EXECUTABLE(imageFilteringGpu ${SOURCES})
     include_directories(${OpenCV_INCLUDE_DIRS})
+
+    CUDA_ADD_EXECUTABLE(imageFilteringGpu ${SOURCES})
+
     target_link_libraries(imageFilteringGpu ${OpenCV_LIBS})
   endif(OpenCV_FOUND)
 endif(CUDA_FOUND)
