@@ -1,6 +1,11 @@
 ﻿#include "imageFilteringCpu.h"
 #include <opencv2/imgproc.hpp>
 
+uchar clipCpu(float val)
+{
+	return (val < 0.0f) ? 0 : (val > 255.0f) ? 255 : (uchar)val;
+}
+
 void imageFilteringCpu
 (
     const cv::Mat& src, 
@@ -18,7 +23,7 @@ void imageFilteringCpu
                     sum += (kernel.ptr<float>(yy)[xx] * src.ptr<uchar>(y+yy-border_size)[x+xx-border_size]);
                 }
             }
-            pdst[x] = sum;
+            pdst[x] = clipCpu(sum);
         }
     }
 }

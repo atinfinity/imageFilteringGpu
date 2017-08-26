@@ -7,6 +7,11 @@
 
 texture<uchar, cudaTextureType2D, cudaReadModeElementType> srcTex(false, cudaFilterModePoint, cudaAddressModeClamp);
 
+__device__ uchar clipGpu(float val)
+{
+	return (val < 0.0f) ? 0 : (val > 255.0f) ? 255 : (uchar)val;
+}
+
 __global__ void imageFilteringGpu
 (
     const cv::cudev::PtrStepSz<uchar> src,
@@ -26,7 +31,7 @@ __global__ void imageFilteringGpu
                     sum = __fadd_rn(sum, __fmul_rn(kernel.ptr(yy)[xx], src.ptr(y+yy-border_size)[x+xx-border_size]));
                 }
             }
-            dst.ptr(y)[x] = sum;
+            dst.ptr(y)[x] = clipGpu(sum);
         }
     }
 }
