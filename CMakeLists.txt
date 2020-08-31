@@ -23,8 +23,8 @@ if(CUDA_FOUND)
     CUDA_INCLUDE_DIRECTORIES(${OpenCV_INCLUDE_DIRS})
     include_directories(${OpenCV_INCLUDE_DIRS})
 
-    CUDA_ADD_EXECUTABLE(imageFilteringGpu ${SOURCES})
+    CUDA_ADD_EXECUTABLE(${PROJECT_NAME} ${SOURCES})
 
-    target_link_libraries(imageFilteringGpu ${OpenCV_LIBS})
+    target_link_libraries(${PROJECT_NAME} ${OpenCV_LIBS})
   endif(OpenCV_FOUND)
 endif(CUDA_FOUND)
